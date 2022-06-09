@@ -8,7 +8,9 @@ import android.provider.OpenableColumns
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.example.enhancedviewer.databinding.ActivityMainBinding
 import java.io.BufferedReader
@@ -39,6 +41,53 @@ class MainActivity : AppCompatActivity() {
                     binding.nowLine.text = (first + 1).toString()
                 }
             }
+
+        binding.recyclerView.addOnItemTouchListener(
+            object : RecyclerView.OnItemTouchListener {
+                override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+                    if (e.action == MotionEvent.ACTION_DOWN)
+                        binding.recyclerView.clipToPadding = false
+                    else if (e.action == MotionEvent.ACTION_UP && binding.recyclerView.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
+                        val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
+                        var movement: Int = 0
+                        val smoothScroller: LinearSmoothScroller
+                        val center = binding.recyclerView.height / 2
+
+                        if (center < e.y) {
+                            // 증앙 아래 터치 시 마지막 요소를 맨 위까지 스크롤
+                            movement = layoutManager.findLastCompletelyVisibleItemPosition() + 1
+                            smoothScroller = object : LinearSmoothScroller(baseContext) {
+                                override fun getVerticalSnapPreference(): Int {
+                                    return SNAP_TO_START
+                                }
+                            }
+                        } else {
+                            movement = layoutManager.findFirstCompletelyVisibleItemPosition() - 1
+                            smoothScroller = object : LinearSmoothScroller(baseContext) {
+                                override fun getVerticalSnapPreference(): Int {
+                                    return SNAP_TO_END
+                                }
+                            }
+                        }
+
+                        binding.recyclerView.clipToPadding = true
+
+                        smoothScroller.targetPosition = movement
+                        layoutManager.startSmoothScroll(smoothScroller)
+                    }
+
+                    return false
+                }
+
+                override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
+
+                }
+
+                override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
+                    TODO("not implemented")
+                }
+            }
+        )
 
         binding.recyclerView.addOnScrollListener(onScrollListener)
 
