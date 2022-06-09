@@ -16,6 +16,12 @@
         android:title="bookmarkAdd" />
 
     <item
+        android:id="@+id/pageSearch"
+        app:showAsAction="always"
+        android:icon="@drawable/icon_page_search"
+        android:title="pageSearch" />
+
+    <item
         android:id="@+id/search"
         app:showAsAction="always"
         android:icon="@drawable/icon_search"
