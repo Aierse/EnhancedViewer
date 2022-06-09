@@ -1,0 +1,28 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.enhancedviewer.MainActivity">
+
+    <item
+        android:id="@+id/bookmark"
+        app:showAsAction="always"
+        android:icon="@drawable/icon_bookmark"
+        android:title="bookmark" />
+
+    <item
+        android:id="@+id/bookmarkAdd"
+        app:showAsAction="always"
+        android:icon="@drawable/icon_bookmark_add"
+        android:title="bookmarkAdd" />
+
+    <item
+        android:id="@+id/search"
+        app:showAsAction="always"
+        android:icon="@drawable/icon_search"
+        android:title="search" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/action_settings" />
+</menu>
