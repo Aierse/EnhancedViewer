@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">EnhancedViewer</string>
-    <string name="action_settings">설정</string>
+    <string name="fontSizeSetting">글꼴 크기</string>
 </resources>
