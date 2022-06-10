@@ -48,16 +48,18 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.addOnItemTouchListener(
             object : RecyclerView.OnItemTouchListener {
                 override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+                    // 스크롤 중일 경우 스크롤 멈춤
                     if (e.action == MotionEvent.ACTION_DOWN)
                         binding.recyclerView.clipToPadding = false
+                    //스크롤 중이 아닐 경우
                     else if (e.action == MotionEvent.ACTION_UP && binding.recyclerView.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
                         val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
-                        var movement: Int = 0
+                        val movement: Int
                         val smoothScroller: LinearSmoothScroller
                         val center = binding.recyclerView.height / 2
 
                         if (center < e.y) {
-                            // 증앙 아래 터치 시 마지막 요소를 맨 위까지 스크롤
+                            // 증앙 아래 터치 시 아래로 한페이지 이동
                             movement = layoutManager.findLastCompletelyVisibleItemPosition() + 1
                             smoothScroller = object : LinearSmoothScroller(baseContext) {
                                 override fun getVerticalSnapPreference(): Int {
@@ -65,6 +67,7 @@ class MainActivity : AppCompatActivity() {
                                 }
                             }
                         } else {
+                            // 중앙 위 터치 시 위로 한페이지 이동
                             movement = layoutManager.findFirstCompletelyVisibleItemPosition() - 1
                             smoothScroller = object : LinearSmoothScroller(baseContext) {
                                 override fun getVerticalSnapPreference(): Int {
