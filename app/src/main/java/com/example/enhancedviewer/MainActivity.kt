@@ -1,14 +1,17 @@
 package com.example.enhancedviewer
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.text.InputType
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
+import android.widget.EditText
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
@@ -108,6 +111,31 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.pageSearch -> {
+                val edit = EditText(this).apply {
+                    inputType = InputType.TYPE_CLASS_NUMBER
+                }
+
+                val dialog = AlertDialog.Builder(this).apply {
+                    setTitle("페이지 이동")
+                    setMessage("페이지를 입력하세요.")
+                    setView(edit)
+
+                    setPositiveButton("확인") { dialog, which ->
+                        val value = edit.text.toString().toInt() - 1
+                        val input = if (value < 0) 0
+                        else if (value >= textAdapter.itemCount) textAdapter.itemCount - 1
+                        else value
+
+                        val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
+
+                        layoutManager.scrollToPositionWithOffset(input, 0)
+                    }
+                    setNegativeButton("취소") { dialog, which ->
+                        dialog.dismiss()
+                    }
+                }
+
+                dialog.show()
                 true
             }
             R.id.search -> {
