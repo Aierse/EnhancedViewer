@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.text.InputType
+import android.text.TextUtils.split
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
@@ -29,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var textAdapter: TextAdapter
     private val data: ArrayList<String> = arrayListOf()
+    private lateinit var recyclerViewLayoutManager: LinearLayoutManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,13 +39,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
+        recyclerViewLayoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
+
         val onScrollListener: RecyclerView.OnScrollListener =
             object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
-
-                    val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
-                    val first = layoutManager.findFirstVisibleItemPosition()
+                    val first = recyclerViewLayoutManager.findFirstVisibleItemPosition()
 
                     binding.nowLine.text = (first + 1).toString()
                 }
@@ -57,15 +59,13 @@ class MainActivity : AppCompatActivity() {
                         binding.recyclerView.clipToPadding = false
                     //스크롤 중이 아닐 경우
                     else if (e.action == MotionEvent.ACTION_UP && binding.recyclerView.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
-                        val layoutManager =
-                            binding.recyclerView.layoutManager as LinearLayoutManager
                         val movement: Int
                         val smoothScroller: LinearSmoothScroller
                         val center = binding.recyclerView.height / 2
 
                         if (center < e.y) {
                             // 증앙 아래 터치 시 아래로 한페이지 이동
-                            movement = layoutManager.findLastCompletelyVisibleItemPosition() + 1
+                            movement = recyclerViewLayoutManager.findLastCompletelyVisibleItemPosition() + 1
                             smoothScroller = object : LinearSmoothScroller(baseContext) {
                                 override fun getVerticalSnapPreference(): Int {
                                     return SNAP_TO_START
@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity() {
                             }
                         } else {
                             // 중앙 위 터치 시 위로 한페이지 이동
-                            movement = layoutManager.findFirstCompletelyVisibleItemPosition() - 1
+                            movement = recyclerViewLayoutManager.findFirstCompletelyVisibleItemPosition() - 1
                             smoothScroller = object : LinearSmoothScroller(baseContext) {
                                 override fun getVerticalSnapPreference(): Int {
                                     return SNAP_TO_END
@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
                         binding.recyclerView.clipToPadding = true
 
                         smoothScroller.targetPosition = movement
-                        layoutManager.startSmoothScroll(smoothScroller)
+                        recyclerViewLayoutManager.startSmoothScroll(smoothScroller)
                     }
 
                     return false
@@ -117,12 +117,11 @@ class MainActivity : AppCompatActivity() {
                 val fileName = title.toString()
 
                 if (File("$filesDir/$fileName").exists()) {
-                    val bookmarkList = openFileInput(fileName).bufferedReader().lines().toList()
-
-                    for (i in bookmarkList) {
-
-                        Log.d("tttt", i)
+                    val bookmarkList = openFileInput(fileName).bufferedReader().lines().toList().map {
+                        Integer.parseInt(it)
                     }
+
+                    //recyclerViewLayoutManager.scrollToPositionWithOffset(bookmarkList[2], 0)
                 }
 
                 true
@@ -130,8 +129,8 @@ class MainActivity : AppCompatActivity() {
             R.id.bookmarkAdd -> {
                 // 북마크 파일 이름은 열린 파일 이름으로 설정함
                 val fileName = title.toString()
-                val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
-                val position = layoutManager.findFirstCompletelyVisibleItemPosition()
+
+                val position = recyclerViewLayoutManager.findFirstCompletelyVisibleItemPosition()
 
                 val dialog = AlertDialog.Builder(this).apply {
                     setTitle("북마크를 저장하시겠습니까?")
@@ -139,7 +138,7 @@ class MainActivity : AppCompatActivity() {
 
                     setPositiveButton("확인") { dialog, which ->
                         openFileOutput(fileName, MODE_APPEND).use {
-                            it.write(("$fileName,$position\n").toByteArray())
+                            it.write(("$position\n").toByteArray())
                             Toast.makeText(baseContext, "북마크가 저장되었습니다.", Toast.LENGTH_SHORT).show()
 
                             it.close()
@@ -170,10 +169,7 @@ class MainActivity : AppCompatActivity() {
                             else if (value >= textAdapter.itemCount) textAdapter.itemCount - 1
                             else value
 
-                            val layoutManager =
-                                binding.recyclerView.layoutManager as LinearLayoutManager
-
-                            layoutManager.scrollToPositionWithOffset(input, 0)
+                            recyclerViewLayoutManager.scrollToPositionWithOffset(input, 0)
                         }
                         setNegativeButton("취소") { dialog, which ->
                             dialog.dismiss()
