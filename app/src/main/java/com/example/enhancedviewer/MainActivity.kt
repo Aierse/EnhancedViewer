@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity() {
                     setTitle("북마크를 저장하시겠습니까?")
                     setMessage(data[position])
 
-                    setPositiveButton("확인") { dialog, which ->
+                    setPositiveButton("확인") { _, _ ->
                         openFileOutput(fileName, MODE_APPEND).use {
                             it.write(("$position\n").toByteArray())
                             Toast.makeText(baseContext, "북마크가 저장되었습니다.", Toast.LENGTH_SHORT).show()
@@ -165,7 +165,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
 
-                    setNegativeButton("취소") { dialog, which ->
+                    setNegativeButton("취소") { dialog, _ ->
                         dialog.dismiss()
                     }
                 }
@@ -183,7 +183,7 @@ class MainActivity : AppCompatActivity() {
                     setMessage("페이지를 입력하세요.")
                     setView(edit)
 
-                    setPositiveButton("확인") { dialog, which ->
+                    setPositiveButton("확인") { _, _ ->
                         val value = edit.text.toString().toInt() - 1
                         val input = if (value < 0) 0
                         else if (value >= textAdapter.itemCount) textAdapter.itemCount - 1
@@ -191,7 +191,7 @@ class MainActivity : AppCompatActivity() {
 
                         recyclerViewLayoutManager.scrollToPositionWithOffset(input, 0)
                     }
-                    setNegativeButton("취소") { dialog, which ->
+                    setNegativeButton("취소") { dialog, _ ->
                         dialog.dismiss()
                     }
                 }
@@ -220,7 +220,7 @@ class MainActivity : AppCompatActivity() {
             when (requestCode) {
                 OPEN_REQUEST_CODE -> {
                     data?.let { it ->
-                        it.data?.let { it ->
+                        it.data?.let {
                             contentResolver.query(it, null, null, null, null)?.use { cursor ->
                                 val name = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                                 cursor.moveToFirst()
