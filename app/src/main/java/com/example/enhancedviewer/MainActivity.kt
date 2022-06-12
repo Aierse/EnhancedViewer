@@ -12,6 +12,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.widget.EditText
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
@@ -53,7 +54,8 @@ class MainActivity : AppCompatActivity() {
                         binding.recyclerView.clipToPadding = false
                     //스크롤 중이 아닐 경우
                     else if (e.action == MotionEvent.ACTION_UP && binding.recyclerView.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
-                        val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
+                        val layoutManager =
+                            binding.recyclerView.layoutManager as LinearLayoutManager
                         val movement: Int
                         val smoothScroller: LinearSmoothScroller
                         val center = binding.recyclerView.height / 2
@@ -104,6 +106,7 @@ class MainActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
+
     //툴바 이벤트 등록
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
@@ -111,6 +114,32 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.bookmarkAdd -> {
+                // 북마크 파일 이름은 열린 파일 이름으로 설정함
+                val fileName = title.toString()
+                val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
+                val position = layoutManager.findFirstCompletelyVisibleItemPosition()
+
+                val dialog = AlertDialog.Builder(this).apply {
+                    setTitle("북마크를 저장하시겠습니까?")
+                    setMessage(data[position])
+
+                    setPositiveButton("확인") { dialog, which ->
+                        try {
+                            val os = openFileOutput(fileName, MODE_APPEND)
+
+                            os.write(("$fileName,$position\n").toByteArray())
+                            Toast.makeText(baseContext, "북마크가 저장되었습니다.", Toast.LENGTH_SHORT).show()
+
+                            os.close()
+                        } catch (e: IOException) {
+
+                        }
+                    }
+                    setNegativeButton("취소") { dialog, which ->
+                        dialog.dismiss()
+                    }
+                }
+                dialog.show()
                 true
             }
             R.id.pageSearch -> {
@@ -129,7 +158,8 @@ class MainActivity : AppCompatActivity() {
                         else if (value >= textAdapter.itemCount) textAdapter.itemCount - 1
                         else value
 
-                        val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
+                        val layoutManager =
+                            binding.recyclerView.layoutManager as LinearLayoutManager
 
                         layoutManager.scrollToPositionWithOffset(input, 0)
                     }
